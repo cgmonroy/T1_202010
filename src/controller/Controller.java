@@ -1,103 +1,114 @@
 package controller;
 
+import java.io.FileReader;
 import java.util.Scanner;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Iterator;
+
+import model.data_structures.DoubleLinkedList;
+import model.logic.Infracciones;
 import model.logic.Modelo;
 import view.View;
 
 public class Controller {
 
-	/* Instancia del Modelo*/
-	private Modelo modelo;
-	
-	/* Instancia de la Vista*/
-	private View view;
-	
+	//----------
+	//CONSTANTES
+	//----------
+
 	/**
-	 * Crear la vista y el modelo del proyecto
-	 * @param capacidad tamaNo inicial del arreglo
+	 * Ruta del json
 	 */
-	public Controller ()
+	public static final String rutaJson="./data/commparendosmall.geojson";
+
+	//---------
+	//ATRIBUTOS
+	//---------
+
+	/**
+	 * Lista de infracciones
+	 */
+	private DoubleLinkedList<Infracciones> lista;
+
+	/**
+	 * Atributo de la clase modelo
+	 */
+	private Modelo modelo;
+
+	/**
+	 * Atributo de la clase view
+	 */
+	private View view;
+
+	/**
+	 * Atributo de la clase Infracciones
+	 */
+	private Infracciones infracciones;
+
+	//-------------
+	//CONSTRUCTORES
+	//-------------
+
+	/**
+	 * Constructor de Controller
+	 */
+	public Controller()
 	{
+		lista= new DoubleLinkedList<Infracciones>();
 		view = new View();
 		modelo = new Modelo();
 	}
-		
+
+	//-------
+	//METODOS
+	//-------
+
+	/**
+	 * Metodo para empezar la aplicacion
+	 */
 	public void run() 
 	{
-		Scanner lector = new Scanner(System.in);
+		Scanner scnr = new Scanner(System.in);
+		Integer integer = null;
+		Object objeto = null;
+		String rta = "";
 		boolean fin = false;
-		String dato = "";
-		String respuesta = "";
-
-		while( !fin ){
+		while( !fin )
+		{
 			view.printMenu();
 
-			int option = lector.nextInt();
-			switch(option){
-				case 1:
-					view.printMessage("--------- \nCrear Arreglo \nDar capacidad inicial del arreglo: ");
-				    int capacidad = lector.nextInt();
-				    modelo = new Modelo(capacidad); 
-				    view.printMessage("Arreglo Dinamico creado");
-				    view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
+			int x = scnr.nextInt();
+			switch(x){
+			case 1:
+				modelo = new Modelo(); 
+				modelo.loadComparendos(rutaJson);					
+				break;
 
-				case 2:
-					view.printMessage("--------- \nDar cadena (simple) a ingresar: ");
-					dato = lector.next();
-					modelo.agregar(dato);
-					view.printMessage("Dato agregado");
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
-
-				case 3:
-					view.printMessage("--------- \nDar cadena (simple) a buscar: ");
-					dato = lector.next();
-					respuesta = modelo.buscar(dato);
-					if ( respuesta != null)
-					{
-						view.printMessage("Dato encontrado: "+ respuesta);
-					}
-					else
-					{
-						view.printMessage("Dato NO encontrado");
-					}
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
-
-				case 4:
-					view.printMessage("--------- \nDar cadena (simple) a eliminar: ");
-					dato = lector.next();
-					respuesta = modelo.eliminar(dato);
-					if ( respuesta != null)
-					{
-						view.printMessage("Dato eliminado "+ respuesta);
-					}
-					else
-					{
-						view.printMessage("Dato NO eliminado");							
-					}
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
-
-				case 5: 
-					view.printMessage("--------- \nContenido del Arreglo: ");
-					view.printModelo(modelo);
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;	
-					
-				case 6: 
-					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
-					lector.close();
-					fin = true;
-					break;	
-
-				default: 
-					view.printMessage("--------- \n Opcion Invalida !! \n---------");
-					break;
+			case 2:
+				System.out.println("--------- \nDar OBJECTID a buscar: ");
+				integer = scnr.nextInt();
+				Infracciones comp = modelo.buscarPorObjectId(integer);
+				rta = "Type = " + comp.getTYPE() + " " + "/ Localidad = " +comp.getLOCALIDAD() + " " + "/ Infraccion = " +comp.getINFRACCION() + " " + "/ ObjectId = " +comp.getOBJECTID();
+				if ( rta != null)
+				{
+					System.out.println("Infraccion: "+ rta);
+				}
+				else
+				{
+					System.out.println("No se encontro la infraccion");
+				}
+				break;
+			default: 
+				System.out.println("--------- \n Opcion Invalida !! \n---------");
+				break;
 			}
 		}
-		
-	}	
-}
+	}
+}	
